@@ -1,6 +1,6 @@
-# azcam-focus
+# focus
 
-*azcam-focus* is an azcam plugin package to control focus observations used to determine optimal instrument or telescope focus positions.
+*focus* is an azcam package to control focus observations used to determine optimal instrument or telescope focus positions.
 
 `focus` is usually executed in the console window although a server-side version is available on some systems. `focus` is an instance of the *Focus* or *FocusServer* classes.
 
