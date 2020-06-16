@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="azcam-focus",
-    version="20.0",
+    name="focus",
+    version="20.1",
     description="azcam plugin for focus control",
     long_description=long_description,
     author="Michael Lesser",
