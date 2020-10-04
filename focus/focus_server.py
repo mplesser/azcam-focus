@@ -6,7 +6,7 @@ This is the server-side version.
 
 import time
 
-import azcam
+from azcam.server import azcam
 
 
 class FocusServer(object):
@@ -46,7 +46,7 @@ class FocusServer(object):
         # delay in seconds
         self.move_delay = 3
 
-        self.exposure = azcam.db.exposure
+        self.exposure = azcam.api.exposure
 
     def reset(self):
         """
@@ -121,14 +121,10 @@ class FocusServer(object):
                     azcam.utils.prompt("Number of exposures", self.number_exposures)
                 )
             if focus_step == "prompt":
-                self.focus_step = float(
-                    azcam.utils.prompt("Focus step size", self.focus_step)
-                )
+                self.focus_step = float(azcam.utils.prompt("Focus step size", self.focus_step))
             if detector_shift == "prompt":
                 self.detector_shift = float(
-                    azcam.utils.prompt(
-                        "Number detector rows to shift", self.detector_shift
-                    )
+                    azcam.utils.prompt("Number detector rows to shift", self.detector_shift)
                 )
 
         AbortFlag = 0
@@ -144,9 +140,7 @@ class FocusServer(object):
         root = azcam.utils.get_par("imageroot")
         includesequencenumber = azcam.utils.get_par("imageincludesequencenumber")
         autoname = azcam.utils.get_par("imageautoname")
-        autoincrementsequencenumber = azcam.utils.get_par(
-            "imageautoincrementsequencenumber"
-        )
+        autoincrementsequencenumber = azcam.utils.get_par("imageautoincrementsequencenumber")
         title = azcam.utils.get_par("imagetitle")
         testimage = azcam.utils.get_par("imagetest")
         imagetype = azcam.utils.get_par("imagetype")
@@ -214,9 +208,7 @@ class FocusServer(object):
                 azcam.utils.set_par("imageroot", root)
                 azcam.utils.set_par("imageincludesequencenumber", includesequencenumber)
                 azcam.utils.set_par("imageautoname", autoname)
-                azcam.utils.set_par(
-                    "imageautoincrementsequencenumber", autoincrementsequencenumber
-                )
+                azcam.utils.set_par("imageautoincrementsequencenumber", autoincrementsequencenumber)
                 azcam.utils.set_par("imagetest", testimage)
                 azcam.utils.set_par("imagetitle", title)
                 azcam.utils.set_par("imagetype", imagetype)
@@ -231,9 +223,7 @@ class FocusServer(object):
         azcam.log("Returning focus to starting value %.3f" % FocusStartingValue)
         if self.focus_type == "step":
             steps = -1 * nsteps
-            self.focus_component.set_focus(
-                steps, 0, self.focus_component, self.focus_type
-            )
+            self.focus_component.set_focus(steps, 0, self.focus_component, self.focus_type)
         elif self.focus_type == "absolute":
             self.focus_component.set_focus(FocusStartingValue, 0, self.focus_type)
         self.focus_delay()
@@ -252,9 +242,7 @@ class FocusServer(object):
         azcam.utils.set_par("imageroot", root)
         azcam.utils.set_par("imageincludesequencenumber", includesequencenumber)
         azcam.utils.set_par("imageautoname", autoname)
-        azcam.utils.set_par(
-            "imageautoincrementsequencenumber", autoincrementsequencenumber
-        )
+        azcam.utils.set_par("imageautoincrementsequencenumber", autoincrementsequencenumber)
         azcam.utils.set_par("imagetest", testimage)
         azcam.utils.set_par("imagetitle", title)
         azcam.utils.set_par("imagetype", imagetype)
