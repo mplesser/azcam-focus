@@ -119,10 +119,14 @@ class Focus(object):
                     azcam.utils.prompt("Number of exposures", self.number_exposures)
                 )
             if focus_step == "prompt":
-                self.focus_step = float(azcam.utils.prompt("Focus step size", self.focus_step))
+                self.focus_step = float(
+                    azcam.utils.prompt("Focus step size", self.focus_step)
+                )
             if detector_shift == "prompt":
                 self.detector_shift = float(
-                    azcam.utils.prompt("Number detector rows to shift", self.detector_shift)
+                    azcam.utils.prompt(
+                        "Number detector rows to shift", self.detector_shift
+                    )
                 )
 
         AbortFlag = 0
@@ -139,7 +143,9 @@ class Focus(object):
         root = azcam.console.api.get_par("imageroot")
         includesequencenumber = azcam.console.api.get_par("imageincludesequencenumber")
         autoname = azcam.console.api.get_par("imageautoname")
-        autoincrementsequencenumber = azcam.console.api.get_par("imageautoincrementsequencenumber")
+        autoincrementsequencenumber = azcam.console.api.get_par(
+            "imageautoincrementsequencenumber"
+        )
         title = azcam.console.api.get_par("imagetitle")
         testimage = azcam.console.api.get_par("imagetest")
         imagetype = azcam.console.api.get_par("imagetype")
@@ -158,7 +164,9 @@ class Focus(object):
         FocusCurrentExposure = 1
 
         # get starting focus
-        FocusCurrentPosition = azcam.console.api.get_focus(focus_component=self.focus_component)
+        FocusCurrentPosition = azcam.console.api.get_focus(
+            focus_component=self.focus_component
+        )
         FocusStartingValue = FocusCurrentPosition
 
         nsteps = 0  # total number of focus steps
@@ -185,7 +193,9 @@ class Focus(object):
                         self.focus_type,
                     )
                 self.focus_delay()
-                reply = azcam.console.api.get_focus(focus_component=self.focus_component)
+                reply = azcam.console.api.get_focus(
+                    focus_component=self.focus_component
+                )
                 FocusCurrentPosition = reply
                 FocusCurrentPosition = float(FocusCurrentPosition)
 
@@ -210,7 +220,9 @@ class Focus(object):
                     FocusStartingValue, 0, self.focus_component, self.focus_type
                 )
                 azcam.console.api.set_par("imageroot", root)
-                azcam.console.api.set_par("imageincludesequencenumber", includesequencenumber)
+                azcam.console.api.set_par(
+                    "imageincludesequencenumber", includesequencenumber
+                )
                 azcam.console.api.set_par("imageautoname", autoname)
                 azcam.console.api.set_par(
                     "imageautoincrementsequencenumber", autoincrementsequencenumber
@@ -250,7 +262,9 @@ class Focus(object):
         azcam.console.api.set_par("imageroot", root)
         azcam.console.api.set_par("imageincludesequencenumber", includesequencenumber)
         azcam.console.api.set_par("imageautoname", autoname)
-        azcam.console.api.set_par("imageautoincrementsequencenumber", autoincrementsequencenumber)
+        azcam.console.api.set_par(
+            "imageautoincrementsequencenumber", autoincrementsequencenumber
+        )
         azcam.console.api.set_par("imagetest", testimage)
         azcam.console.api.set_par("imagetitle", title)
         azcam.console.api.set_par("imagetype", imagetype)
