@@ -64,7 +64,7 @@ class Focus(object):
         Abort focus exposure.
         """
 
-        azcam.console.api.abort()
+        azcam.api.exposure.abort()
 
         return
 
@@ -87,6 +87,25 @@ class Focus(object):
         self.set_pars_called = 1
 
         return
+
+    def _get_focus(
+        self,
+        focus_id: int = 0,
+    ) -> float:
+
+        if self.focus_component == "instrument":
+            return azcam.api.instrument.get_focus(focus_id)
+        elif self.focus_component == "telescope":
+            return azcam.api.telescope.get_focus(focus_id)
+
+    def _set_focus(
+        self, focus_value: float, focus_id: int = 0, focus_type: str = "absolute"
+    ):
+
+        if self.focus_component == "instrument":
+            return azcam.api.instrument.set_focus(focus_value, focus_id, focus_type)
+        elif self.focus_component == "telescope":
+            return azcam.api.telescope.set_focus(focus_value, focus_id, focus_type)
 
     def run(
         self,
@@ -132,41 +151,39 @@ class Focus(object):
         AbortFlag = 0
 
         # exposure time - zero not allowed for focus
-        azcam.console.api.set_exposuretime(self.exposure_time)
-        ExpTime = azcam.console.api.get_exposuretime()
+        azcam.api.exposure.set_exposuretime(self.exposure_time)
+        ExpTime = azcam.api.exposure.get_exposuretime()
         if ExpTime < 0.001:
             azcam.AzcamWarning("do not focus with zero exposure time")
             return
-        azcam.console.api.set_exposuretime(self.exposure_time)
+        azcam.api.exposure.set_exposuretime(self.exposure_time)
 
         # save parameters to be changed
-        root = azcam.console.api.get_par("imageroot")
-        includesequencenumber = azcam.console.api.get_par("imageincludesequencenumber")
-        autoname = azcam.console.api.get_par("imageautoname")
-        autoincrementsequencenumber = azcam.console.api.get_par(
+        root = azcam.api.exposure.get_par("imageroot")
+        includesequencenumber = azcam.api.exposure.get_par("imageincludesequencenumber")
+        autoname = azcam.api.exposure.get_par("imageautoname")
+        autoincrementsequencenumber = azcam.api.exposure.get_par(
             "imageautoincrementsequencenumber"
         )
-        title = azcam.console.api.get_par("imagetitle")
-        testimage = azcam.console.api.get_par("imagetest")
-        imagetype = azcam.console.api.get_par("imagetype")
+        title = azcam.api.exposure.get_par("imagetitle")
+        testimage = azcam.api.exposure.get_par("imagetest")
+        imagetype = azcam.api.exposure.get_par("imagetype")
 
-        azcam.console.api.set_par("imageroot", "focus.")
-        azcam.console.api.set_par("imageincludesequencenumber", 1)
-        azcam.console.api.set_par("imageautoname", 0)
-        azcam.console.api.set_par("imageautoincrementsequencenumber", 1)
-        azcam.console.api.set_par("imagetest", 0)
-        azcam.console.api.set_par("imageoverwrite", 1)
+        azcam.api.exposure.set_par("imageroot", "focus.")
+        azcam.api.exposure.set_par("imageincludesequencenumber", 1)
+        azcam.api.exposure.set_par("imageautoname", 0)
+        azcam.api.exposure.set_par("imageautoincrementsequencenumber", 1)
+        azcam.api.exposure.set_par("imagetest", 0)
+        azcam.api.exposure.set_par("imageoverwrite", 1)
 
         # start
-        azcam.console.api.begin_exposure(self.exposure_time, "object", "Focus")
+        azcam.api.exposure.begin_exposure(self.exposure_time, "object", "Focus")
 
         # loop over FocusNumber integrations
         FocusCurrentExposure = 1
 
         # get starting focus
-        FocusCurrentPosition = azcam.console.api.get_focus(
-            focus_component=self.focus_component
-        )
+        FocusCurrentPosition = self._get_focus()
         FocusStartingValue = FocusCurrentPosition
 
         nsteps = 0  # total number of focus steps
@@ -181,29 +198,24 @@ class Focus(object):
 
             if FocusCurrentExposure > 1:
                 if self.focus_type == "step":
-                    azcam.console.api.set_focus(
-                        self.focus_step, 0, self.focus_component, self.focus_type
-                    )
+                    azcam.api._set_focus(self.focus_step, 0, self.focus_type)
                     nsteps += self.focus_step
                 elif self.focus_type == "absolute":
-                    azcam.console.api.set_focus(
+                    azcam.api._set_focus(
                         FocusCurrentPosition + self.focus_step,
                         0,
-                        self.focus_component,
                         self.focus_type,
                     )
                 self.focus_delay()
-                reply = azcam.console.api.get_focus(
-                    focus_component=self.focus_component
-                )
+                reply = self._get_focus()
                 FocusCurrentPosition = reply
                 FocusCurrentPosition = float(FocusCurrentPosition)
 
                 # shift detector
-                azcam.console.api.parshift(self.detector_shift)
+                azcam.api.exposure.parshift(self.detector_shift)
                 if FocusCurrentExposure == self.number_exposures:
                     azcam.log("Last exposure, double shifting")
-                    azcam.console.api.parshift(self.detector_shift)
+                    azcam.api.exposure.parshift(self.detector_shift)
 
             azcam.log(
                 "Next exposure is %d of %d at focus position %.3f"
@@ -213,24 +225,22 @@ class Focus(object):
             # integrate
             azcam.log("Integrating")
             try:
-                azcam.console.api.integrate_exposure()
+                azcam.api.exposure.integrate_exposure()
             except azcam.AzcamError:
                 azcam.log("Focus exposure aborted")
-                azcam.console.api.set_focus(
-                    FocusStartingValue, 0, self.focus_component, self.focus_type
-                )
-                azcam.console.api.set_par("imageroot", root)
-                azcam.console.api.set_par(
+                azcam.api._set_focus(FocusStartingValue, 0, self.focus_type)
+                azcam.api.exposure.set_par("imageroot", root)
+                azcam.api.exposure.set_par(
                     "imageincludesequencenumber", includesequencenumber
                 )
-                azcam.console.api.set_par("imageautoname", autoname)
-                azcam.console.api.set_par(
+                azcam.api.exposure.set_par("imageautoname", autoname)
+                azcam.api.exposure.set_par(
                     "imageautoincrementsequencenumber", autoincrementsequencenumber
                 )
-                azcam.console.api.set_par("imagetest", testimage)
-                azcam.console.api.set_par("imagetitle", title)
-                azcam.console.api.set_par("imagetype", imagetype)
-                fp = azcam.console.api.get_focus(focus_component=self.focus_component)
+                azcam.api.exposure.set_par("imagetest", testimage)
+                azcam.api.exposure.set_par("imagetitle", title)
+                azcam.api.exposure.set_par("imagetype", imagetype)
+                fp = self._get_focus()
                 azcam.log("Current focus: %.3f" % fp)
                 return
 
@@ -241,33 +251,31 @@ class Focus(object):
         azcam.log("Returning focus to starting value %.3f" % FocusStartingValue)
         if self.focus_type == "step":
             steps = -1 * nsteps
-            azcam.console.api.set_focus(steps, 0, self.focus_component, self.focus_type)
+            azcam.api._set_focus(steps, 0, self.focus_type)
         elif self.focus_type == "absolute":
-            azcam.console.api.set_focus(
-                FocusStartingValue, 0, self.focus_component, self.focus_type
-            )
+            azcam.api._set_focus(FocusStartingValue, 0, self.focus_type)
         self.focus_delay()
-        fp = azcam.console.api.get_focus(focus_component=self.focus_component)
+        fp = self._get_focus()
         azcam.log("Current focus: %.3f" % fp)
 
         if not AbortFlag:
             # readout and finish
             azcam.log("Reading out")
-            azcam.console.api.readout_exposure()
-            azcam.console.api.end_exposure()
+            azcam.api.exposure.readout_exposure()
+            azcam.api.exposure.end_exposure()
         else:
-            azcam.console.api.set_par("ExposureFlag", azcam.db.exposureflags["NONE"])
+            azcam.api.exposure.set_par("ExposureFlag", azcam.db.exposureflags["NONE"])
 
         # finish
-        azcam.console.api.set_par("imageroot", root)
-        azcam.console.api.set_par("imageincludesequencenumber", includesequencenumber)
-        azcam.console.api.set_par("imageautoname", autoname)
-        azcam.console.api.set_par(
+        azcam.api.exposure.set_par("imageroot", root)
+        azcam.api.exposure.set_par("imageincludesequencenumber", includesequencenumber)
+        azcam.api.exposure.set_par("imageautoname", autoname)
+        azcam.api.exposure.set_par(
             "imageautoincrementsequencenumber", autoincrementsequencenumber
         )
-        azcam.console.api.set_par("imagetest", testimage)
-        azcam.console.api.set_par("imagetitle", title)
-        azcam.console.api.set_par("imagetype", imagetype)
+        azcam.api.exposure.set_par("imagetest", testimage)
+        azcam.api.exposure.set_par("imagetitle", title)
+        azcam.api.exposure.set_par("imagetype", imagetype)
 
         return
 
