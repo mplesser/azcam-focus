@@ -198,10 +198,10 @@ class Focus(object):
 
             if FocusCurrentExposure > 1:
                 if self.focus_type == "step":
-                    azcam.api._set_focus(self.focus_step, 0, self.focus_type)
+                    self._set_focus(self.focus_step, 0, self.focus_type)
                     nsteps += self.focus_step
                 elif self.focus_type == "absolute":
-                    azcam.api._set_focus(
+                    self._set_focus(
                         FocusCurrentPosition + self.focus_step,
                         0,
                         self.focus_type,
@@ -228,7 +228,7 @@ class Focus(object):
                 azcam.api.exposure.integrate_exposure()
             except azcam.AzcamError:
                 azcam.log("Focus exposure aborted")
-                azcam.api._set_focus(FocusStartingValue, 0, self.focus_type)
+                self._set_focus(FocusStartingValue, 0, self.focus_type)
                 azcam.api.exposure.set_par("imageroot", root)
                 azcam.api.exposure.set_par(
                     "imageincludesequencenumber", includesequencenumber
@@ -251,9 +251,9 @@ class Focus(object):
         azcam.log("Returning focus to starting value %.3f" % FocusStartingValue)
         if self.focus_type == "step":
             steps = -1 * nsteps
-            azcam.api._set_focus(steps, 0, self.focus_type)
+            self._set_focus(steps, 0, self.focus_type)
         elif self.focus_type == "absolute":
-            azcam.api._set_focus(FocusStartingValue, 0, self.focus_type)
+            self._set_focus(FocusStartingValue, 0, self.focus_type)
         self.focus_delay()
         fp = self._get_focus()
         azcam.log("Current focus: %.3f" % fp)
