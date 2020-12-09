@@ -1,7 +1,5 @@
 """
-Contains the FocusServer class.
-
-This is the server-side version.
+Contains the server-side Focus class.
 """
 
 import time
@@ -9,9 +7,10 @@ import time
 from azcam.server import azcam
 
 
-class FocusServer(object):
+class Focus(object):
     """
     Focus class for focusing a camera.
+    This is server code.
 
     Either the telescope or instrument may be moved for focus adjustment.
     May be used as a server or client script.
@@ -271,7 +270,3 @@ class FocusServer(object):
         time.sleep(self.move_delay)
 
         return
-
-
-if __name__ == "__main__":
-    print("Use focus.run() instead")

@@ -289,10 +289,3 @@ class Focus(object):
         time.sleep(self.move_delay)
 
         return
-
-
-# instance
-focus = Focus()
-
-if __name__ == "__main__":
-    print("Use focus.run() instead")
