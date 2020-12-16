@@ -6,7 +6,7 @@ Common version for all systems.
 
 import time
 
-from azcam.console import azcam
+import azcam
 
 
 class Focus(object):
@@ -88,10 +88,7 @@ class Focus(object):
 
         return
 
-    def _get_focus(
-        self,
-        focus_id: int = 0,
-    ) -> float:
+    def _get_focus(self, focus_id: int = 0,) -> float:
 
         if self.focus_component == "instrument":
             return azcam.api.instrument.get_focus(focus_id)
@@ -202,9 +199,7 @@ class Focus(object):
                     nsteps += self.focus_step
                 elif self.focus_type == "absolute":
                     self._set_focus(
-                        FocusCurrentPosition + self.focus_step,
-                        0,
-                        self.focus_type,
+                        FocusCurrentPosition + self.focus_step, 0, self.focus_type,
                     )
                 self.focus_delay()
                 reply = self._get_focus()

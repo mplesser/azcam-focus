@@ -4,7 +4,7 @@ Contains the server-side Focus class.
 
 import time
 
-from azcam.server import azcam
+import azcam
 
 
 class Focus(object):
@@ -183,9 +183,7 @@ class Focus(object):
                     nsteps += self.focus_step
                 elif self.focus_type == "absolute":
                     self.focus_component.set_focus(
-                        FocusCurrentPosition + self.focus_step,
-                        0,
-                        self.focus_type,
+                        FocusCurrentPosition + self.focus_step, 0, self.focus_type,
                     )
                 self.focus_delay()
                 reply = self.focus_component.get_focus()
