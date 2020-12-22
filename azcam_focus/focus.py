@@ -95,9 +95,7 @@ class Focus(object):
         elif self.focus_component == "telescope":
             return azcam.api.telescope.get_focus(focus_id)
 
-    def _set_focus(
-        self, focus_value: float, focus_id: int = 0, focus_type: str = "absolute"
-    ):
+    def _set_focus(self, focus_value: float, focus_id: int = 0, focus_type: str = "absolute"):
 
         if self.focus_component == "instrument":
             return azcam.api.instrument.set_focus(focus_value, focus_id, focus_type)
@@ -135,14 +133,10 @@ class Focus(object):
                     azcam.utils.prompt("Number of exposures", self.number_exposures)
                 )
             if focus_step == "prompt":
-                self.focus_step = float(
-                    azcam.utils.prompt("Focus step size", self.focus_step)
-                )
+                self.focus_step = float(azcam.utils.prompt("Focus step size", self.focus_step))
             if detector_shift == "prompt":
                 self.detector_shift = float(
-                    azcam.utils.prompt(
-                        "Number detector rows to shift", self.detector_shift
-                    )
+                    azcam.utils.prompt("Number detector rows to shift", self.detector_shift)
                 )
 
         AbortFlag = 0
@@ -156,25 +150,23 @@ class Focus(object):
         azcam.api.exposure.set_exposuretime(self.exposure_time)
 
         # save parameters to be changed
-        root = azcam.api.exposure.get_par("imageroot")
-        includesequencenumber = azcam.api.exposure.get_par("imageincludesequencenumber")
-        autoname = azcam.api.exposure.get_par("imageautoname")
-        autoincrementsequencenumber = azcam.api.exposure.get_par(
-            "imageautoincrementsequencenumber"
-        )
-        title = azcam.api.exposure.get_par("imagetitle")
-        testimage = azcam.api.exposure.get_par("imagetest")
-        imagetype = azcam.api.exposure.get_par("imagetype")
+        root = azcam.api.config.get_par("imageroot")
+        includesequencenumber = azcam.api.config.get_par("imageincludesequencenumber")
+        autoname = azcam.api.config.get_par("imageautoname")
+        autoincrementsequencenumber = azcam.api.config.get_par("imageautoincrementsequencenumber")
+        title = azcam.api.config.get_par("imagetitle")
+        testimage = azcam.api.config.get_par("imagetest")
+        imagetype = azcam.api.config.get_par("imagetype")
 
-        azcam.api.exposure.set_par("imageroot", "focus.")
-        azcam.api.exposure.set_par("imageincludesequencenumber", 1)
-        azcam.api.exposure.set_par("imageautoname", 0)
-        azcam.api.exposure.set_par("imageautoincrementsequencenumber", 1)
-        azcam.api.exposure.set_par("imagetest", 0)
-        azcam.api.exposure.set_par("imageoverwrite", 1)
+        azcam.api.config.set_par("imageroot", "focus.")
+        azcam.api.config.set_par("imageincludesequencenumber", 1)
+        azcam.api.config.set_par("imageautoname", 0)
+        azcam.api.config.set_par("imageautoincrementsequencenumber", 1)
+        azcam.api.config.set_par("imagetest", 0)
+        azcam.api.config.set_par("imageoverwrite", 1)
 
         # start
-        azcam.api.exposure.begin_exposure(self.exposure_time, "object", "Focus")
+        azcam.api.exposure.begin(self.exposure_time, "object", "Focus")
 
         # loop over FocusNumber integrations
         FocusCurrentExposure = 1
@@ -220,21 +212,19 @@ class Focus(object):
             # integrate
             azcam.log("Integrating")
             try:
-                azcam.api.exposure.integrate_exposure()
+                azcam.api.exposure.integrate()
             except azcam.AzcamError:
                 azcam.log("Focus exposure aborted")
                 self._set_focus(FocusStartingValue, 0, self.focus_type)
-                azcam.api.exposure.set_par("imageroot", root)
-                azcam.api.exposure.set_par(
-                    "imageincludesequencenumber", includesequencenumber
-                )
-                azcam.api.exposure.set_par("imageautoname", autoname)
-                azcam.api.exposure.set_par(
+                azcam.api.config.set_par("imageroot", root)
+                azcam.api.config.set_par("imageincludesequencenumber", includesequencenumber)
+                azcam.api.config.set_par("imageautoname", autoname)
+                azcam.api.config.set_par(
                     "imageautoincrementsequencenumber", autoincrementsequencenumber
                 )
-                azcam.api.exposure.set_par("imagetest", testimage)
-                azcam.api.exposure.set_par("imagetitle", title)
-                azcam.api.exposure.set_par("imagetype", imagetype)
+                azcam.api.config.set_par("imagetest", testimage)
+                azcam.api.config.set_par("imagetitle", title)
+                azcam.api.config.set_par("imagetype", imagetype)
                 fp = self._get_focus()
                 azcam.log("Current focus: %.3f" % fp)
                 return
@@ -256,21 +246,19 @@ class Focus(object):
         if not AbortFlag:
             # readout and finish
             azcam.log("Reading out")
-            azcam.api.exposure.readout_exposure()
-            azcam.api.exposure.end_exposure()
+            azcam.api.exposure.readout()
+            azcam.api.exposure.end()
         else:
-            azcam.api.exposure.set_par("ExposureFlag", azcam.db.exposureflags["NONE"])
+            azcam.api.config.set_par("ExposureFlag", azcam.db.exposureflags["NONE"])
 
         # finish
-        azcam.api.exposure.set_par("imageroot", root)
-        azcam.api.exposure.set_par("imageincludesequencenumber", includesequencenumber)
-        azcam.api.exposure.set_par("imageautoname", autoname)
-        azcam.api.exposure.set_par(
-            "imageautoincrementsequencenumber", autoincrementsequencenumber
-        )
-        azcam.api.exposure.set_par("imagetest", testimage)
-        azcam.api.exposure.set_par("imagetitle", title)
-        azcam.api.exposure.set_par("imagetype", imagetype)
+        azcam.api.config.set_par("imageroot", root)
+        azcam.api.config.set_par("imageincludesequencenumber", includesequencenumber)
+        azcam.api.config.set_par("imageautoname", autoname)
+        azcam.api.config.set_par("imageautoincrementsequencenumber", autoincrementsequencenumber)
+        azcam.api.config.set_par("imagetest", testimage)
+        azcam.api.config.set_par("imagetitle", title)
+        azcam.api.config.set_par("imagetype", imagetype)
 
         return
 
