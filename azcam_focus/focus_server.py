@@ -120,10 +120,14 @@ class Focus(object):
                     azcam.utils.prompt("Number of exposures", self.number_exposures)
                 )
             if focus_step == "prompt":
-                self.focus_step = float(azcam.utils.prompt("Focus step size", self.focus_step))
+                self.focus_step = float(
+                    azcam.utils.prompt("Focus step size", self.focus_step)
+                )
             if detector_shift == "prompt":
                 self.detector_shift = float(
-                    azcam.utils.prompt("Number detector rows to shift", self.detector_shift)
+                    azcam.utils.prompt(
+                        "Number detector rows to shift", self.detector_shift
+                    )
                 )
 
         AbortFlag = 0
@@ -139,7 +143,9 @@ class Focus(object):
         root = azcam.api.config.get_par("imageroot")
         includesequencenumber = azcam.api.config.get_par("imageincludesequencenumber")
         autoname = azcam.api.config.get_par("imageautoname")
-        autoincrementsequencenumber = azcam.api.config.get_par("imageautoincrementsequencenumber")
+        autoincrementsequencenumber = azcam.api.config.get_par(
+            "imageautoincrementsequencenumber"
+        )
         title = azcam.api.config.get_par("imagetitle")
         testimage = azcam.api.config.get_par("imagetest")
         imagetype = azcam.api.config.get_par("imagetype")
@@ -205,7 +211,9 @@ class Focus(object):
                 azcam.log("Focus exposure aborted")
                 self.focus_component.set_focus(FocusStartingValue, 0, self.focus_type)
                 azcam.api.config.set_par("imageroot", root)
-                azcam.api.config.set_par("imageincludesequencenumber", includesequencenumber)
+                azcam.api.config.set_par(
+                    "imageincludesequencenumber", includesequencenumber
+                )
                 azcam.api.config.set_par("imageautoname", autoname)
                 azcam.api.config.set_par(
                     "imageautoincrementsequencenumber", autoincrementsequencenumber
@@ -224,7 +232,9 @@ class Focus(object):
         azcam.log("Returning focus to starting value %.3f" % FocusStartingValue)
         if self.focus_type == "step":
             steps = -1 * nsteps
-            self.focus_component.set_focus(steps, 0, self.focus_component, self.focus_type)
+            self.focus_component.set_focus(
+                steps, 0, self.focus_component, self.focus_type
+            )
         elif self.focus_type == "absolute":
             self.focus_component.set_focus(FocusStartingValue, 0, self.focus_type)
         self.focus_delay()
@@ -243,7 +253,9 @@ class Focus(object):
         azcam.api.config.set_par("imageroot", root)
         azcam.api.config.set_par("imageincludesequencenumber", includesequencenumber)
         azcam.api.config.set_par("imageautoname", autoname)
-        azcam.api.config.set_par("imageautoincrementsequencenumber", autoincrementsequencenumber)
+        azcam.api.config.set_par(
+            "imageautoincrementsequencenumber", autoincrementsequencenumber
+        )
         azcam.api.config.set_par("imagetest", testimage)
         azcam.api.config.set_par("imagetitle", title)
         azcam.api.config.set_par("imagetype", imagetype)
