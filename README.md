@@ -4,6 +4,14 @@
 
 `focus` is usually executed in the console window although a server-side version is available on some systems. `focus` is an instance of the *Focus* or *FocusServer* classes.
 
+## Installation
+
+`pip install azam-focus`
+
+Or download from github: https://github.com/mplesser/azcam-focus.git.
+
+## Code Examples
+
 **Usage**:
 
 `focus.command(parameters...)`
