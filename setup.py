@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="azcam-focus",
-    version="21.1.1",
+    version="21.1.2",
     description="azcam extension for focus control",
     long_description_content_type="text/markdown",
     long_description=long_description,

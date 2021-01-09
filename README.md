@@ -6,7 +6,7 @@
 
 ## Installation
 
-`pip install azam-focus`
+`pip install azcam-focus`
 
 Or download from github: https://github.com/mplesser/azcam-focus.git.
 
